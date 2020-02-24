@@ -41,12 +41,11 @@ public class JavaClientRpc {
         //proxy is used to convert the client high level calls to artemis specific low level messages
         CordaRPCOps proxy = rpcConnection.getProxy();
         //////////////////////////////////
-        proxy.startFlowDynamic()
 
         //hit the node to retrieve network map
         List<NodeInfo> nodes = proxy.networkMapSnapshot();
         logger.info("All the nodes available in this network", nodes);
-        nodes.get(0).get
+
 
         //hit the node to get snapshot and observable for IOUState
         DataFeed<Vault.Page<IOUState>, Vault.Update<IOUState>> dataFeed = proxy.vaultTrack(IOUState.class);

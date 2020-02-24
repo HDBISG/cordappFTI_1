@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+// import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id 'org.jetbrains.kotlin.jvm'
@@ -47,10 +47,10 @@ dependencies {
 
     cordapp project(":contracts-java")
     cordapp project(":workflows-java")
-    cordapp project(":contracts-kotlin")
-    cordapp project(":workflows-kotlin")
+    // cordapp project(":contracts-kotlin")
+    // cordapp project(":workflows-kotlin")
 }
-
+/*
 tasks.withType(KotlinCompile) {
     kotlinOptions {
         languageVersion = "1.2"
@@ -59,7 +59,7 @@ tasks.withType(KotlinCompile) {
         javaParameters = true   // Useful for reflection.
     }
 }
-
+*/
 
 task runPartyAServer(type: JavaExec, dependsOn: jar) {
     classpath = sourceSets.main.runtimeClasspath
