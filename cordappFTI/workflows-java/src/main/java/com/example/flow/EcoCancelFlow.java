@@ -2,6 +2,7 @@ package com.example.flow;
 
 import co.paralleluniverse.fibers.Suspendable;
 import com.example.contract.EcoIssueContract;
+import com.example.schema.EcoSchemaV1;
 import com.example.state.EcoState;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.contracts.Command;
@@ -12,6 +13,9 @@ import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
 import net.corda.core.node.services.Vault;
+import net.corda.core.node.services.vault.Builder;
+import net.corda.core.node.services.vault.CriteriaExpression;
+import net.corda.core.node.services.vault.FieldInfo;
 import net.corda.core.node.services.vault.QueryCriteria;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static net.corda.core.contracts.ContractsDSL.requireThat;
+import static net.corda.core.node.services.vault.QueryCriteriaUtils.getField;
 
 public class EcoCancelFlow {
 
@@ -33,12 +38,12 @@ public class EcoCancelFlow {
     @StartableByRPC
     public static class EcoCancelFlowInitiator extends FlowLogic<SignedTransaction> {
 
-        private final UniqueIdentifier stateLinearId;
+        private final String docNo;
 
         private  final Logger logger = LoggerFactory.getLogger(EcoCancelFlowInitiator.class);
 
-        public EcoCancelFlowInitiator( UniqueIdentifier stateLinearId) {
-            this.stateLinearId = stateLinearId;
+        public EcoCancelFlowInitiator( String docNo ) {
+            this.docNo = docNo;
         }
 
         private final ProgressTracker progressTracker = new ProgressTracker();
@@ -53,16 +58,25 @@ public class EcoCancelFlow {
         public SignedTransaction call() throws FlowException {
 
             // 1. Retrieve the IOU State from the vault using LinearStateQueryCriteria
-            // List<UUID> listOfLinearIds = Arrays.asList(stateLinearId.getId());
-            QueryCriteria queryCriteria = new QueryCriteria.LinearStateQueryCriteria(
-                    null, null,
-                    ImmutableList.of(stateLinearId.getExternalId()), Vault.StateStatus.UNCONSUMED,null);
+            QueryCriteria generalCriteria = new QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL);
+            FieldInfo attributeDocNo = null;
+            try {
+                attributeDocNo = getField("docNo", EcoSchemaV1.PersistentEco.class);
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+            //CriteriaExpression docNoIndex = Builder.like(attributeDocNo, "%");
+            CriteriaExpression docNoIndex = Builder.equal(attributeDocNo, docNo );
+            QueryCriteria customCriteria = new QueryCriteria.VaultCustomQueryCriteria( docNoIndex );
 
-            Vault.Page results = getServiceHub().getVaultService().queryBy(EcoState.class, queryCriteria);
+            QueryCriteria criteria = generalCriteria.and( customCriteria );
+
+            // Vault.Page<EcoState> page =  proxy.vaultQueryByCriteria( customCriteria, EcoState.class );
+            Vault.Page<EcoState> page = getServiceHub().getVaultService().queryBy(EcoState.class, customCriteria);
 
             // 2. Get a reference to the inputState data that we are going to settle.
-            StateAndRef inputStateAndRefToSettle = (StateAndRef) results.getStates().get(0);
-            EcoState ecoState = (EcoState) ((StateAndRef) results.getStates().get(0)).getState().getData();
+            StateAndRef inputStateAndRefToSettle = (StateAndRef) page.getStates().get(0);
+            EcoState ecoState = (EcoState) ((StateAndRef) page.getStates().get(0)).getState().getData();
 
             // We choose our transaction's notary (the notary prevents double-spends).
             Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
@@ -75,8 +89,8 @@ public class EcoCancelFlow {
              *         TODO 1 - Create our EcoState to represent on-ledger tokens!
              * ===========================================================================*/
             // We create our new TokenState.
-            final Command<EcoIssueContract.Commands.Issue> txCommand = new Command<>(
-                    new EcoIssueContract.Commands.Issue(),
+            final Command<EcoIssueContract.Commands.Cancel> txCommand = new Command<>(
+                    new EcoIssueContract.Commands.Cancel(),
                     ecoState.getParticipants()
                             .stream().map(AbstractParty::getOwningKey)
                             .collect(Collectors.toList()) );

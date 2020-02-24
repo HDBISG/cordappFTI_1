@@ -94,6 +94,19 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
             adminAddress("localhost:10006")
         }
         rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
+        extraConfig = [
+                dataSourceProperties: [
+                        dataSourceClassName: 'org.postgresql.ds.PGSimpleDataSource',
+                        dataSource         : [
+                                url     : 'jdbc:postgresql://localhost:5432/corda?currentSchema=cordaschema',
+                                user    : 'eco',
+                                password: 'eco'
+                        ]
+                ],
+                database   : [
+                        transactionIsolationLevel: 'READ_COMMITTED',
+                        initialiseSchema: 'true'],
+        ]
     }
     node {
         name "O=PartyB,L=New York,C=US"

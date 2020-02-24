@@ -60,7 +60,7 @@ public class EcoRPC {
         partyBName = new CordaX500Name("PartyB", "New York", "US");
         Party partyB = proxy.wellKnownPartyFromX500Name(partyBName);
 
-        EcoState ecoState = new EcoState( partyA, partyB, docNo, ecoXML );
+        EcoState ecoState = new EcoState( partyA, partyB, docNo, ecoXML, new UniqueIdentifier( docNo ) );
 
         System.out.println("ecoState=" + ecoState );
 
@@ -87,7 +87,7 @@ public class EcoRPC {
         System.out.println("docNo=" + docNo );
 
         try {
-            FlowHandle<SignedTransaction> flowHandle1 = proxy.startFlowDynamic( EcoCancelFlow.EcoCancelFlowInitiator.class, new UniqueIdentifier(docNo) );
+            FlowHandle<SignedTransaction> flowHandle1 = proxy.startFlowDynamic( EcoCancelFlow.EcoCancelFlowInitiator.class, docNo );
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,16 +130,17 @@ public class EcoRPC {
 
             QueryCriteria generalCriteria = new QueryCriteria.VaultQueryCriteria(Vault.StateStatus.ALL);
             FieldInfo attributeDocNo = getField("docNo", EcoSchemaV1.PersistentEco.class);
-            CriteriaExpression docNoIndex = Builder.like(attributeDocNo, "'%'");
+            //CriteriaExpression docNoIndex = Builder.like(attributeDocNo, "%");
+            CriteriaExpression docNoIndex = Builder.equal(attributeDocNo, docNo );
             QueryCriteria customCriteria = new QueryCriteria.VaultCustomQueryCriteria( docNoIndex );
 
             QueryCriteria criteria = generalCriteria.and( customCriteria );
 
             Vault.Page<EcoState> page =  proxy.vaultQueryByCriteria( customCriteria, EcoState.class );
-            System.out.println("stateAndRefs 0000 = " + attributeDocNo.getName() );
+            /*System.out.println("stateAndRefs 0000 = " + attributeDocNo.getName() );
             System.out.println("stateAndRefs 1111 = " + docNoIndex );
             System.out.println("stateAndRefs 2222 = " + customCriteria );
-            System.out.println("stateAndRefs 3333 = " + page );
+            System.out.println("stateAndRefs 3333 = " + page );*/
 
             stateAndRefs =  page.getStates();
             System.out.println("stateAndRefs 5555 = " + stateAndRefs.size() );

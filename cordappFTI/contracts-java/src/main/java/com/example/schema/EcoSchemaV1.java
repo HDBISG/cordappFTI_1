@@ -27,12 +27,14 @@ public class EcoSchemaV1 extends MappedSchema {
         @Column(name = "vcc") private final String vcc;
         @Column(name = "eco_content") private final String ecoContent;
         @Column(name = "doc_no") private final String docNo;
+        @Column(name = "linear_id") private final UUID linearId;
 
-        public PersistentEco(String fti, String vcc, String ecoContent, String docNo) {
+        public PersistentEco(String fti, String vcc, String docNo, String ecoContent, UUID linearId) {
             this.fti = fti;
             this.vcc = vcc;
             this.ecoContent = ecoContent;
             this.docNo = docNo;
+            this.linearId = linearId;
         }
 
         // Default constructor required by hibernate.
@@ -41,6 +43,7 @@ public class EcoSchemaV1 extends MappedSchema {
             this.vcc = null;
             this.ecoContent = null;
             this.docNo = null;
+            this.linearId = null;
         }
 
         public String getFti() {
@@ -57,6 +60,10 @@ public class EcoSchemaV1 extends MappedSchema {
 
         public String getDocNo() {
             return docNo;
+        }
+
+        public UUID getId() {
+            return linearId;
         }
     }
 }
