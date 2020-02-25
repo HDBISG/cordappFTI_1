@@ -85,6 +85,20 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
             deploy = false
         }
         cordapps.clear()
+
+        extraConfig = [
+                dataSourceProperties: [
+                        dataSourceClassName: 'org.postgresql.ds.PGSimpleDataSource',
+                        dataSource         : [
+                                url     : 'jdbc:postgresql://localhost:5432/corda?currentSchema=cordanotify',
+                                user    : 'cordanotify',
+                                password: 'cordanotify'
+                        ]
+                ],
+                database   : [
+                        transactionIsolationLevel: 'READ_COMMITTED',
+                        initialiseSchema: 'true'],
+        ]
     }
     node {
         name "O=PartyA,L=London,C=GB"
@@ -99,8 +113,8 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
                         dataSourceClassName: 'org.postgresql.ds.PGSimpleDataSource',
                         dataSource         : [
                                 url     : 'jdbc:postgresql://localhost:5432/corda?currentSchema=cordafti',
-                                user    : 'eco',
-                                password: 'eco'
+                                user    : 'cordafti',
+                                password: 'cordafti'
                         ]
                 ],
                 database   : [
@@ -116,6 +130,19 @@ task deployNodes(type: Cordform, dependsOn: ['jar']) {
             adminAddress("localhost:10010")
         }
         rpcUsers = [[user: "user1", "password": "test", "permissions": ["ALL"]]]
+        extraConfig = [
+                dataSourceProperties: [
+                        dataSourceClassName: 'org.postgresql.ds.PGSimpleDataSource',
+                        dataSource         : [
+                                url     : 'jdbc:postgresql://localhost:5432/corda?currentSchema=cordavcc',
+                                user    : 'cordavcc',
+                                password: 'cordavcc'
+                        ]
+                ],
+                database   : [
+                        transactionIsolationLevel: 'READ_COMMITTED',
+                        initialiseSchema: 'true'],
+        ]
     }
 /*    node {
         name "O=PartyC,L=Paris,C=FR"

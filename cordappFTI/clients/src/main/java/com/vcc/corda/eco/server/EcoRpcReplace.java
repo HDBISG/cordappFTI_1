@@ -6,7 +6,7 @@ public class EcoRpcReplace extends EcoRPC{
 
     public static void main(String[] args) {
 
-        new EcoRpcReplace().issueEco ( docNo, docNo + "_XML" );
+        //new EcoRpcReplace().issueEco ( docNo, docNo + "_XML" );
 
         new EcoRpcReplace().replaceEco ( docNo, docNo+"_replace",  docNo+"_replace_XML");
 
