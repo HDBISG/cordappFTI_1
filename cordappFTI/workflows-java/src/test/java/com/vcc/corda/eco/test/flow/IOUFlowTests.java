@@ -1,7 +1,7 @@
 package com.vcc.corda.eco.test.flow;
 
 import com.vcc.corda.eco.state.IOUState;
-import com.vcc.corda.eco.ExampleFlow;
+import com.vcc.corda.eco.flow.ExampleFlow;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.concurrent.CordaFuture;
 import net.corda.core.contracts.ContractState;

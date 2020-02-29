@@ -1,4 +1,4 @@
-package com.vcc.corda.eco.server;
+package com.vcc.corda.eco.client;
 
 import com.vcc.corda.eco.state.IOUState;
 import net.corda.client.rpc.CordaRPCClient;

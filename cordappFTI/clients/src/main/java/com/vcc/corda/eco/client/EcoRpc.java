@@ -1,8 +1,8 @@
-package com.vcc.corda.eco.server;
+package com.vcc.corda.eco.client;
 
-import com.vcc.corda.eco.EcoCancelFlow;
-import com.vcc.corda.eco.EcoIssueFlowInitiator;
-import com.vcc.corda.eco.EcoReplaceFlow;
+import com.vcc.corda.eco.flow.EcoCancelFlow;
+import com.vcc.corda.eco.flow.EcoIssueFlowInitiator;
+import com.vcc.corda.eco.flow.EcoReplaceFlow;
 import com.vcc.corda.eco.schema.EcoSchemaV1;
 import com.vcc.corda.eco.state.EcoState;
 import net.corda.client.rpc.CordaRPCClient;
@@ -28,13 +28,19 @@ import java.util.List;
 
 import static net.corda.core.node.services.vault.QueryCriteriaUtils.getField;
 
-public class EcoRPC {
-    private static final Logger logger = LoggerFactory.getLogger(EcoRPC.class);
+public class EcoRpc {
+    private static final Logger logger = LoggerFactory.getLogger(EcoRpc.class);
+
+    EcoRpcEnity rpcEnity ;
+
+    public EcoRpc( EcoRpcEnity rpcEnity ){
+        this.rpcEnity = rpcEnity;
+    }
 
     private CordaRPCConnection getConnection() {
-        final NetworkHostAndPort nodeAddress = NetworkHostAndPort.parse( "localhost:10005" );
-        String username = "user1";
-        String password = "test";
+        final NetworkHostAndPort nodeAddress = NetworkHostAndPort.parse( rpcEnity.getRpcHostPort() );
+        String username = rpcEnity.getRpcUserName();
+        String password = rpcEnity.getRpcPassword();
 
         final CordaRPCClient client = new CordaRPCClient(nodeAddress, CordaRPCClientConfiguration.DEFAULT);
 
@@ -45,7 +51,7 @@ public class EcoRPC {
 
     private Party getPartyA( CordaRPCOps proxy ) {
 
-        CordaX500Name partyAName = new CordaX500Name("PartyA", "London", "GB");
+        CordaX500Name partyAName = new CordaX500Name(rpcEnity.getPartAOrganisation(), rpcEnity.getPartALocality(), rpcEnity.getPartACountry() );
         Party partyA = proxy.wellKnownPartyFromX500Name(partyAName);
 
         return partyA;
@@ -53,7 +59,7 @@ public class EcoRPC {
 
     private Party getPartyB( CordaRPCOps proxy ) {
 
-        CordaX500Name partyBName = new CordaX500Name("PartyB", "New York", "US");
+        CordaX500Name partyBName = new CordaX500Name(rpcEnity.getPartBOrganisation(), rpcEnity.getPartBLocality(), rpcEnity.getPartBCountry() );
         Party partyB = proxy.wellKnownPartyFromX500Name(partyBName);
 
         return partyB;
